@@ -1,4 +1,4 @@
 Automatic Analysis of Archaeological Micro-Fauna
 ================================================
 
-description
+This project uses microfaunal remains from a rock shelter deposit as a proxy for environmental change and stability to explore the effects of the of the Medieval Climate Anomaly (MCA) and Little Ice Age (LIA) on the terrestrial environment of Santa Barbara Island, California. The remains used in this project were recovered in 2015 from a rock shelter on Santa Barbara Island, CA with radiocarbon dates spanning the past 1,600 years. Algorithmic analysis will be used to assess degree of tooth wear in deer mouse (Peromyscus maniculatus) mandibles to construct age profiles and conduct morphometric analysis of mouse mandibles and femurs to assess change in body size through time. A handheld spectrometer will be used to determine ratios of stable carbon, oxygen and nitrogen isotopes in bird and mouse remains to assess seasonality. This information will be used to explore how the terrestrial environment of Santa Barbara Island (SBI) responded to these two climate phenomena and the potential for sustained use of SBI by humans during this time.

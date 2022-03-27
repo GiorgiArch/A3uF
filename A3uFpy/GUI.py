@@ -19,13 +19,14 @@ class Main_window():
             self.main_window.columnconfigure(i, weight=1)
 
         # set an icon
+        icon_name = "icon.png"
         try:
             self.main_window.tk.call('wm', 'iconphoto', self.main_window._w,\
-                tk.PhotoImage(file='./A3uFpy/Test_icon.png'))
+                tk.PhotoImage(file='./A3uFpy/' + icon_name))
         except:
             print("Program not running from root directory.")
             self.main_window.tk.call('wm', 'iconphoto', self.main_window._w,\
-                tk.PhotoImage(file='./Test_icon.png'))
+                tk.PhotoImage(file='./'+ icon_name))
        #window appearence
         self.title = tk.Label(self.main_window, text="Welcome to A3μF", fg='blue', font=("Arial Bold", 50))
         self.title.grid(column=0, row=0, columnspan = 5)

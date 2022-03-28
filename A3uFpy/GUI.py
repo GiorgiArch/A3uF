@@ -1,8 +1,12 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 from tkinter import Button, Entry
+from tkinter import filedialog
+from tkinter.filedialog import askopenfile, askopenfilename
 from tkinter import messagebox
 from functools import partial
+import os
 
 class Main_window():
 
@@ -14,6 +18,7 @@ class Main_window():
         # flag if sub-windows are open
         self.setting_windows_open = False
         self.help_windows_open = False
+        self.database_path = ''
 
         # defining geometry
         self.main_window.geometry('600x200')
@@ -83,9 +88,33 @@ class Main_window():
             self.help_windows_open = True
 
     # Setting window
+
+
     def setting_window_close(self):
         self.setting_windows_open = False
         self.settingWindow.destroy()
+
+    def check_file(self, filename):
+        # TODO integrate database check
+        if os.path.splitext(filename)[1] == ".py":
+            return True
+        else:
+            return False
+
+    def open_file(self):
+        filename = filedialog.askopenfilename(filetypes=[('All Files', '*.*', '')])
+        self.db_label_path.delete(0, END)
+        if self.check_file(filename):
+            self.db_label_path.insert(0, filename)
+            self.db_label_path['fg'] = 'green'
+            self.database_path = filename
+        elif filename == '':
+            self.db_label_path.insert(0, "No path selected")
+            self.db_label_path['fg'] = 'red'
+        else:
+            self.db_label_path.insert(0, "Invalid file")
+            self.db_label_path['fg'] = 'red'
+            self.database_path = ''
 
     def setting_window(self):
         if not self.setting_windows_open:
@@ -106,18 +135,26 @@ class Main_window():
             separator0 = ttk.Separator(self.settingWindow, orient='horizontal')
             separator0.grid(column=0, row=current_row, sticky="ew", pady = 10, columnspan = 5)
             current_row+=1
+            # database setting section with buttons and path finder
 
             self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='black', font=("Arial", 16))
             self.db_label_title.grid(column=0, row=current_row, pady = (2,20), sticky="w")
             current_row+=1
 
-            self.btn_db_path = Button(self.settingWindow, text="Path...", width = 5)
+            self.btn_db_path = Button(self.settingWindow, text="Path...", width = 5, command = self.open_file)
             self.btn_db_path.grid(column=2, row=current_row, sticky="w", padx = 5)
 
+
             # self.db_label_path = tk.Label(self.settingWindow, text="No path selected", fg='red', font=("Arial", 16))
-            self.db_label_path = Entry(self.settingWindow, fg = 'red')
-            self.db_label_path.insert(0, "No path selected")
+            if not self.check_file(self.database_path):
+                self.db_label_path = Entry(self.settingWindow, fg = 'red')
+                self.db_label_path.insert(0, "No path selected")
+            else:
+                self.db_label_path = Entry(self.settingWindow, fg = 'green')
+                self.db_label_path.insert(0, self.database_path)
+
             self.db_label_path.grid(column=1, row=current_row, sticky="ew")
+
 
             self.btn_create_db_path = Button(self.settingWindow, text="New...", width = 5)
             self.btn_create_db_path.grid(column=0, row=current_row, sticky="w", padx = 5)

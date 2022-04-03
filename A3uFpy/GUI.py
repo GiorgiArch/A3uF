@@ -116,6 +116,18 @@ class Main_window():
             self.db_label_path['fg'] = 'red'
             self.database_path = ''
 
+    def check_db_valid(self):
+        '''
+        Check if the database is valid TODO update with db checker
+        '''
+        if self.database_path == '':
+            self.error_window("No database selected")
+        else:
+            with open(self.database_path,"r") as f:
+                dd = len(f.readlines())
+                messagebox.showinfo('Message title', "file long: %d" % dd)
+
+
     def setting_window(self):
         if not self.setting_windows_open:
             self.settingWindow = tk.Toplevel(self.main_window)
@@ -137,8 +149,8 @@ class Main_window():
             current_row+=1
             # database setting section with buttons and path finder
 
-            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='black', font=("Arial", 16))
-            self.db_label_title.grid(column=0, row=current_row, pady = (2,20), sticky="w")
+            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='blue', font=("Arial", 16))
+            self.db_label_title.grid(column=0, row=current_row, pady = 5, sticky="w")
             current_row+=1
 
             self.btn_db_path = Button(self.settingWindow, text="Path...", width = 5, command = self.open_file)
@@ -161,6 +173,43 @@ class Main_window():
 
             current_row+=1
 
+
+            self.btn_check_db = Button(self.settingWindow, text="Check", width = 5, command = self.check_db_valid)
+            self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
+            current_row+=1
+
+            #need to code how to load valid database and change button to green Locked
+            #if not  self.check_file(filename):
+                #self.btn_check_db = Button(self.settingWindow, text="Unable to load", fg = 'red', width = 5)
+                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
+                #current_row+=1
+
+            #elif filename == '':
+                #self.btn_check_db.insert(0, text= "Check", width = 5)
+                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
+                #current_row+=1
+            #else:
+                #self.btn_check_db = Button(self.settingWindow, text="Loaded", fg = 'green', width = 5)
+                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
+                #current_row+=1
+
+
             separator1 = ttk.Separator(self.settingWindow, orient='horizontal')
             separator1.grid(column=0, row=current_row, sticky="ew", pady = 20, columnspan = 5)
             current_row+=1
+
+            self.sett_lbl_title = tk.Label(self.settingWindow, text="Instrumentation settings", fg='blue', font=("Arial", 16),)
+            self.sett_lbl_title.grid(column=0, row=current_row, pady = 5, sticky="w")
+            current_row+=1
+
+            self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15)
+            self.btn_microscope_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
+
+            current_row+=1
+
+            self.btn_scale_finder = Button(self.settingWindow, text="Connect Scale", width = 15)
+            self.btn_scale_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
+
+            current_row+=1
+
+          # buttons in this section should scan for USB

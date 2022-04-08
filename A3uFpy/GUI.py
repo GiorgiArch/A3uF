@@ -7,11 +7,17 @@ from tkinter.filedialog import askopenfile, askopenfilename
 from tkinter import messagebox
 from functools import partial
 import os
+from instrument_DAq import Microscope
+
 
 class Main_window():
 
-
     def __init__(self):
+
+        # instrument handling
+        self.microscope = None
+        self.scale = None
+
         self.main_window = tk.Tk()
         self.main_window.title("A3μF")
 
@@ -178,21 +184,9 @@ class Main_window():
             self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
             current_row+=1
 
-            #need to code how to load valid database and change button to green Locked
-            #if not  self.check_file(filename):
-                #self.btn_check_db = Button(self.settingWindow, text="Unable to load", fg = 'red', width = 5)
-                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
-                #current_row+=1
-
-            #elif filename == '':
-                #self.btn_check_db.insert(0, text= "Check", width = 5)
-                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
-                #current_row+=1
-            #else:
-                #self.btn_check_db = Button(self.settingWindow, text="Loaded", fg = 'green', width = 5)
-                #self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
-                #current_row+=1
-
+            self.btn_db_help = Button(self.settingWindow, text="Help", width = 5)
+            self.btn_db_help.grid(column=2, row=current_row, sticky="w", padx = 0)
+            current_row+=1
 
             separator1 = ttk.Separator(self.settingWindow, orient='horizontal')
             separator1.grid(column=0, row=current_row, sticky="ew", pady = 20, columnspan = 5)
@@ -205,11 +199,33 @@ class Main_window():
             self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15)
             self.btn_microscope_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
 
+            self.available_microscopes = ["Select microscope","cam1", "cam2", "cam3"]
+            self.selected_microscopes = StringVar()
+            self.selected_microscopes.set( "Select microscope" )
+            self.microscope_selector = OptionMenu( self.settingWindow, self.selected_microscopes, *self.available_microscopes)
+            self.microscope_selector.grid(column=1, row=current_row, sticky="ew", padx = 5)
+
+            self.btn_microscope_test = Button(self.settingWindow, text="Test Microscope", width = 15)
+            self.btn_microscope_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
             current_row+=1
 
             self.btn_scale_finder = Button(self.settingWindow, text="Connect Scale", width = 15)
-            self.btn_scale_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
+            self.btn_scale_finder.grid(column=0, row=current_row, sticky="w", padx = 5, pady = 25)
+
+            self.available_scales = ["Select scale","device1", "device2", "device3"]
+            self.selected_scales = StringVar()
+            self.selected_scales.set( "Select scale" )
+            self.scale_selector = OptionMenu( self.settingWindow, self.selected_scales, *self.available_scales)
+            self.scale_selector.grid(column=1, row=current_row, sticky="ew", padx = 5, pady= 10)
+
+            self.btn_scale_test = Button(self.settingWindow, text="Test Scale", width = 15)
+            self.btn_scale_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
+
+
 
             current_row+=1
 
+            self.btn_instr_help = Button(self.settingWindow, text="Help", width = 5)
+            self.btn_instr_help.grid(column=2, row=current_row, sticky="w", padx = 0)
+            current_row+=1
           # buttons in this section should scan for USB

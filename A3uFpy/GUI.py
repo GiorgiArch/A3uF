@@ -7,11 +7,20 @@ from tkinter.filedialog import askopenfile, askopenfilename
 from tkinter import messagebox
 from functools import partial
 import os
+from instrument_DAq import Microscope
+
 
 class Main_window():
 
+    def __init__(self, microscope_controller):
 
-    def __init__(self):
+        # instrument classes
+        self.microscope_controller = microscope_controller
+        self.in_use_microscope = None
+        # instrument handling
+        self.microscope = None
+        self.scale = None
+
         self.main_window = tk.Tk()
         self.main_window.title("A3μF")
 
@@ -116,6 +125,58 @@ class Main_window():
             self.db_label_path['fg'] = 'red'
             self.database_path = ''
 
+    def check_db_valid(self):
+        '''
+        Check if the database is valid TODO update with db checker
+        '''
+        if self.database_path == '':
+            self.error_window("No database selected")
+        else:
+            with open(self.database_path,"r") as f:
+                dd = len(f.readlines())
+                messagebox.showinfo('Message title', "file long: %d" % dd)
+
+    def refresh_microscope_list(self):
+        self.available_microscopes = self.microscope_controller.list_cams()
+        # menu = self.microscope_selector["menu"]
+        self.microscope_selector["menu"].delete(0, "end")
+        # menu.delete(0, "end")
+        for string in self.available_microscopes:
+            self.microscope_selector["menu"].add_command(label=string,
+                 command=lambda value=string: self.selected_microscopes.set(value)
+             )
+
+    def test_microscope(self):
+        """
+        Test the microscope
+        """
+        if self.in_use_microscope is not None:
+            err = self.microscope_controller.test_cam()
+            if err is not None:
+                self.error_window(err)
+        else:
+            self.error_window("No microscope selected")
+
+        return
+
+    def select_microscope(self, *args):
+        """
+        Just select a microscope
+        """
+        try:
+            sel = self.selected_microscopes.get()
+            self.in_use_microscope = self.available_microscopes.index(sel)
+        except:
+            self.error_window("Could not select the microscope")
+        err = self.microscope_controller.select_cam(self.in_use_microscope)
+        if err is not None:
+            self.error_window(err)
+        print("Selecting microscope %s"%sel)
+
+    def confirm_select_microscope(self):
+        """
+        Confirm selection and change the behaviour of the setting window to show that a microscope has been selected.
+        """
     def setting_window(self):
         if not self.setting_windows_open:
             self.settingWindow = tk.Toplevel(self.main_window)
@@ -137,8 +198,8 @@ class Main_window():
             current_row+=1
             # database setting section with buttons and path finder
 
-            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='black', font=("Arial", 16))
-            self.db_label_title.grid(column=0, row=current_row, pady = (2,20), sticky="w")
+            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='blue', font=("Arial", 16))
+            self.db_label_title.grid(column=0, row=current_row, pady = 5, sticky="w")
             current_row+=1
 
             self.btn_db_path = Button(self.settingWindow, text="Path...", width = 5, command = self.open_file)
@@ -161,6 +222,64 @@ class Main_window():
 
             current_row+=1
 
+
+            self.btn_check_db = Button(self.settingWindow, text="Check", width = 5, command = self.check_db_valid)
+            self.btn_check_db.grid(column=1, row=current_row, sticky="w", padx = 0)
+            current_row+=1
+
+            self.btn_db_help = Button(self.settingWindow, text="Help", width = 5)
+            self.btn_db_help.grid(column=2, row=current_row, sticky="w", padx = 0)
+            current_row+=1
+
             separator1 = ttk.Separator(self.settingWindow, orient='horizontal')
             separator1.grid(column=0, row=current_row, sticky="ew", pady = 20, columnspan = 5)
             current_row+=1
+
+            self.sett_lbl_title = tk.Label(self.settingWindow, text="Instrumentation settings", fg='blue', font=("Arial", 16),)
+            self.sett_lbl_title.grid(column=0, row=current_row, pady = 5, sticky="w")
+            current_row+=1
+
+            self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15,\
+                command = self.confirm_select_microscope)
+            self.btn_microscope_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
+
+            # check for microscopes
+            self.available_microscopes = ["Click refresh"]
+            self.selected_microscopes = StringVar()
+            self.selected_microscopes.set( "Select microscope" )
+            self.microscope_selector = OptionMenu(
+                self.settingWindow,
+                self.selected_microscopes,
+                *self.available_microscopes,
+                # command = self.select_microscope
+            )
+            self.selected_microscopes.trace("w", self.select_microscope)
+            self.microscope_selector.grid(column=1, row=current_row, sticky="ew", padx = 5)
+
+            self.btn_microscope_test = Button(self.settingWindow, text="Test Microscope", width = 15, command = self.test_microscope)
+            self.btn_microscope_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
+
+            self.btn_microscope_refresh = Button(self.settingWindow, text="Refresh list", width = 15, command = self.refresh_microscope_list)
+            self.btn_microscope_refresh.grid(column=3, row=current_row, sticky="w", padx = 5, pady = 25)
+
+            current_row+=1
+
+            self.btn_scale_finder = Button(self.settingWindow, text="Connect Scale", width = 15)
+            self.btn_scale_finder.grid(column=0, row=current_row, sticky="w", padx = 5, pady = 25)
+
+            self.available_scales = ["Select scale","device1", "device2", "device3"]
+            self.selected_scales = StringVar()
+            self.selected_scales.set( "Select scale" )
+            self.scale_selector = OptionMenu( self.settingWindow, self.selected_scales, *self.available_scales)
+            self.scale_selector.grid(column=1, row=current_row, sticky="ew", padx = 5, pady= 10)
+
+            self.btn_scale_test = Button(self.settingWindow, text="Test Scale", width = 15)
+            self.btn_scale_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
+
+
+            current_row+=1
+
+            self.btn_instr_help = Button(self.settingWindow, text="Help", width = 5)
+            self.btn_instr_help.grid(column=2, row=current_row, sticky="w", padx = 0)
+            current_row+=1
+          # buttons in this section should scan for USB

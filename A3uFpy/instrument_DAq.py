@@ -14,7 +14,6 @@ from serial import Serial
 import re
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
-import os
 import subprocess
 
 class Microscope():

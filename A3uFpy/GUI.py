@@ -5,15 +5,15 @@ from tkinter import Button, Entry
 from tkinter import filedialog
 from tkinter.filedialog import askopenfile, askopenfilename
 from tkinter import messagebox
+import tkinter.font as tkFont
 from functools import partial
-import os
+import os,ctypes
 from instrument_DAq import Microscope
 
 
 class Main_window():
 
     def __init__(self, microscope_controller):
-
         # instrument classes
         self.microscope_controller = microscope_controller
         self.in_use_microscope = None
@@ -28,9 +28,25 @@ class Main_window():
         self.setting_windows_open = False
         self.help_windows_open = False
         self.database_path = ''
+        if os.name == 'nt':
+            self.text_scaler_title = 0.8
+        else:
+            self.text_scaler_title = 1
 
+        self.std_font = tkFont.Font(family='Arial', size=16)
+        s = ttk.Style()
+        s.configure('.', font=self.std_font)
         # defining geometry
-        self.main_window.geometry('600x200')
+        if os.name == 'nt':
+            ctypes.windll.shcore.SetProcessDpiAwareness(1)
+            self.main_window.tk.call('tk', 'scaling', 3.0)
+            self.main_window_size = '1800x600'
+            self.setting_window_size = '1800x1600'
+        else:
+            self.main_window_size = '600x200'
+            self.setting_window_size = '600x533'
+        self.main_window.geometry(self.main_window_size)
+        # self.main_window.tk.call('tk', 'scaling', 2.0)
         self.main_window.resizable(False, False)
         numberofcolumns = 5.
         for i in range(int(numberofcolumns)):
@@ -46,10 +62,12 @@ class Main_window():
             self.main_window.tk.call('wm', 'iconphoto', self.main_window._w,\
                 tk.PhotoImage(file='./'+ icon_name))
        #window appearence
-        self.title = tk.Label(self.main_window, text="Welcome to A3μF", fg='blue', font=("Arial Bold", 50))
+        self.font = tkFont.Font(family='Arial', size=int(20*self.text_scaler_title))
+        self.font_bold = tkFont.Font(family='Arial Bold', size=int(50*self.text_scaler_title))
+        self.title = tk.Label(self.main_window, text="Welcome to A3μF", fg='blue', font=self.font_bold)
         self.title.grid(column=0, row=0, columnspan = 5)
         self.subtitle = tk.Label(self.main_window, text="Automatic Analysis of Archaeological Micro-Fauna",\
-            fg='black', font=("Arial", 20))
+            fg='black', font=self.font)
         self.subtitle.grid(column=0, row=1, columnspan = 5)
 
         # defining buttons
@@ -85,13 +103,13 @@ class Main_window():
             self.helpWindow = tk.Toplevel(self.main_window)
             self.helpWindow.protocol("WM_DELETE_WINDOW", self.help_window_close)
             self.helpWindow.title("Help")
-            self.helpWindow.geometry("800x600")
+            self.helpWindow.geometry(self.main_window_size)
             self.helpWindow.resizable(False, False)
             self.helpWindow.columnconfigure(0, weight=1)
             self.help_text = tk.Label(self.helpWindow, text=self.help_text,\
-                fg='black', font=("Arial", 20))
+                fg='black', font=self.font)
 
-            self.help_text.grid(column=0, row=0,sticky="NW", padx = 200)
+            self.help_text.grid(column=0, row=0,sticky="NW", padx = 20)
 
             # tells the class that the window is open
             self.help_windows_open = True
@@ -182,7 +200,7 @@ class Main_window():
             self.settingWindow = tk.Toplevel(self.main_window)
             self.settingWindow.protocol("WM_DELETE_WINDOW", self.setting_window_close)
             self.settingWindow.title("Settings")
-            self.settingWindow.geometry("800x600")
+            self.settingWindow.geometry(self.setting_window_size)
             self.settingWindow.resizable(False, False)
             # tells the class that the window is open
             self.setting_windows_open = True
@@ -198,7 +216,7 @@ class Main_window():
             current_row+=1
             # database setting section with buttons and path finder
 
-            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='blue', font=("Arial", 16))
+            self.db_label_title = tk.Label(self.settingWindow, text="Database settings", fg='blue', font=self.font)
             self.db_label_title.grid(column=0, row=current_row, pady = 5, sticky="w")
             current_row+=1
 
@@ -235,8 +253,8 @@ class Main_window():
             separator1.grid(column=0, row=current_row, sticky="ew", pady = 20, columnspan = 5)
             current_row+=1
 
-            self.sett_lbl_title = tk.Label(self.settingWindow, text="Instrumentation settings", fg='blue', font=("Arial", 16),)
-            self.sett_lbl_title.grid(column=0, row=current_row, pady = 5, sticky="w")
+            self.sett_lbl_title = tk.Label(self.settingWindow, text="Instrumentation settings", fg='blue', font=self.font)
+            self.sett_lbl_title.grid(column=0, row=current_row, pady = 5, columnspan = 5, sticky="w")
             current_row+=1
 
             self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15,\

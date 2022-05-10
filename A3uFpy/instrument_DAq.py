@@ -20,6 +20,7 @@ class Microscope():
     def __init__(self):
         self.version = "0.1.1"
         self.video_hardware = None
+        self.initialized = False
         return
 
     def list_cams(self):
@@ -53,6 +54,7 @@ class Microscope():
     def select_cam(self, index):
         try:
             self.video_hardware = VideoCapture(index)
+            self.initialized = True
         except Exception as e:
             return str(e)
 
@@ -68,8 +70,24 @@ class Microscope():
             imshow("Microscope Test",cam_read[1])
             waitKey(0)
             destroyWindow("Microscope Test")
+            self.initialized = True
         except Exception as e:
+            self.initialized = False
             return str(e)
+
+    def get_frame(self):
+        '''
+        get a frame from the camera
+        '''
+        try:
+            if self.video_hardware is not None:
+                for i in range(3):
+                    cam_read = self.video_hardware.read()
+            self.initialized = True
+        except Exception as e:
+            self.initialized = False
+            return False
+        return cam_read[0]
 
 class Scale():
     '''

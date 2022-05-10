@@ -1,5 +1,5 @@
 import GUI
-from instrument_DAq import Microscope
+from instrument_DAq import Microscope, Scale
 from database import Data
 run_main_app = True
 run_database_test = False
@@ -7,7 +7,8 @@ if __name__ == "__main__":
     print("Testing program run...")
     if run_main_app:
         microscope_controller = Microscope()
-        main_window = GUI.Main_window(microscope_controller)
+        scale_controller = Scale()
+        main_window = GUI.Main_window(microscope_controller, scale_controller)
         main_window.run()
     if run_database_test:
         path = "../test_database.db"

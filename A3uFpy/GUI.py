@@ -12,8 +12,11 @@ from instrument_DAq import Microscope
 
 class Main_window():
 
-    def __init__(self):
+    def __init__(self, microscope_controller):
 
+        # instrument classes
+        self.microscope_controller = microscope_controller
+        self.in_use_microscope = None
         # instrument handling
         self.microscope = None
         self.scale = None
@@ -133,7 +136,47 @@ class Main_window():
                 dd = len(f.readlines())
                 messagebox.showinfo('Message title', "file long: %d" % dd)
 
+    def refresh_microscope_list(self):
+        self.available_microscopes = self.microscope_controller.list_cams()
+        # menu = self.microscope_selector["menu"]
+        self.microscope_selector["menu"].delete(0, "end")
+        # menu.delete(0, "end")
+        for string in self.available_microscopes:
+            self.microscope_selector["menu"].add_command(label=string,
+                 command=lambda value=string: self.selected_microscopes.set(value)
+             )
 
+    def test_microscope(self):
+        """
+        Test the microscope
+        """
+        if self.in_use_microscope is not None:
+            err = self.microscope_controller.test_cam()
+            if err is not None:
+                self.error_window(err)
+        else:
+            self.error_window("No microscope selected")
+
+        return
+
+    def select_microscope(self, *args):
+        """
+        Just select a microscope
+        """
+        try:
+            sel = self.selected_microscopes.get()
+            self.in_use_microscope = self.available_microscopes.index(sel)
+        except:
+            self.error_window("Could not select the microscope")
+        err = self.microscope_controller.select_cam(self.in_use_microscope)
+        if err is not None:
+            self.error_window(err)
+        print("Selecting microscope %s"%sel)
+
+    def confirm_select_microscope(self):
+        """
+        Confirm selection and change the behaviour of the setting window to show that a microscope has been selected.
+        """
     def setting_window(self):
         if not self.setting_windows_open:
             self.settingWindow = tk.Toplevel(self.main_window)
@@ -196,17 +239,29 @@ class Main_window():
             self.sett_lbl_title.grid(column=0, row=current_row, pady = 5, sticky="w")
             current_row+=1
 
-            self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15)
+            self.btn_microscope_finder = Button(self.settingWindow, text="Connect Microscope", width = 15,\
+                command = self.confirm_select_microscope)
             self.btn_microscope_finder.grid(column=0, row=current_row, sticky="w", padx = 5)
 
-            self.available_microscopes = ["Select microscope","cam1", "cam2", "cam3"]
+            # check for microscopes
+            self.available_microscopes = ["Click refresh"]
             self.selected_microscopes = StringVar()
             self.selected_microscopes.set( "Select microscope" )
-            self.microscope_selector = OptionMenu( self.settingWindow, self.selected_microscopes, *self.available_microscopes)
+            self.microscope_selector = OptionMenu(
+                self.settingWindow,
+                self.selected_microscopes,
+                *self.available_microscopes,
+                # command = self.select_microscope
+            )
+            self.selected_microscopes.trace("w", self.select_microscope)
             self.microscope_selector.grid(column=1, row=current_row, sticky="ew", padx = 5)
 
-            self.btn_microscope_test = Button(self.settingWindow, text="Test Microscope", width = 15)
+            self.btn_microscope_test = Button(self.settingWindow, text="Test Microscope", width = 15, command = self.test_microscope)
             self.btn_microscope_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
+
+            self.btn_microscope_refresh = Button(self.settingWindow, text="Refresh list", width = 15, command = self.refresh_microscope_list)
+            self.btn_microscope_refresh.grid(column=3, row=current_row, sticky="w", padx = 5, pady = 25)
+
             current_row+=1
 
             self.btn_scale_finder = Button(self.settingWindow, text="Connect Scale", width = 15)
@@ -220,7 +275,6 @@ class Main_window():
 
             self.btn_scale_test = Button(self.settingWindow, text="Test Scale", width = 15)
             self.btn_scale_test.grid(column=2, row=current_row, sticky="w", padx = 5, pady = 25)
-
 
 
             current_row+=1

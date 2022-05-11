@@ -5,7 +5,7 @@ from cv2 import waitKey
 from cv2 import destroyWindow
 from cv2 import imwrite
 from cv2 import CAP_MSMF
-import os
+import os, glob
 import numpy as np
 
 import time
@@ -148,7 +148,18 @@ class Scale():
                         self.scales_list.append(scale_name)
                         self.ports_list.append(port_name)
         else:
-            print("OS not recognized")
+            ports = glob.glob('/dev/tty*')
+            for p in ports:
+                try:
+                    port_name = p
+                    scale_name = self.read_serial(p)
+                    if scale_name:
+                        self.scales_list.append(scale_name)
+                        self.ports_list.append(port_name)
+                except Exception as e:
+                    pass
+        if len(self.scales_list )==0:
+            return "OS is blocking access to the port or no device connected"
 
         return self.scales_list
 

@@ -53,9 +53,13 @@ class Main_window():
             self.setting_window_size = '1800x1600'
             self.help_window_size = "1800x1800"
         else:
-            self.main_window_size = '600x200'
-            self.setting_window_size = '600x533'
-            self.help_window_size = "600x800"
+            # self.main_window_size = '600x200'
+            # self.setting_window_size = '600x533'
+            # self.help_window_size = "600x800"
+            # check on macos
+            self.main_window_size = '1800x600'
+            self.setting_window_size = '1800x1600'
+            self.help_window_size = "1800x1800"
         self.main_window.geometry(self.main_window_size)
         # self.main_window.tk.call('tk', 'scaling', 2.0)
         self.main_window.resizable(False, False)
@@ -222,7 +226,7 @@ class Main_window():
         err = self.scale_controller.initialize(self.in_use_scale)
         if err is not None:
             self.error_window(err)
-        print("Selecting scale %s"%sel)
+        print("Selecting scale %s\n"%sel)
     def confirm_select_microscope(self):
         """
         Confirm selection and change the behaviour of the setting window to show that a microscope has been selected.
@@ -257,6 +261,9 @@ class Main_window():
         looks for scales and refresh menu
         '''
         self.available_scales = self.scale_controller.list_available_scales()
+        if self.available_scales=="OS is blocking access to the port or no device connected":
+            self.available_scales = []
+            messagebox.showerror('Scale', "OS is blocking access to the port or no device connected")
         # menu = self.microscope_selector["menu"]
         self.scale_selector["menu"].delete(0, "end")
         # menu.delete(0, "end")

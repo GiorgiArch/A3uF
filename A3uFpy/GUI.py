@@ -10,7 +10,7 @@ from functools import partial
 import os,ctypes
 from instrument_DAq import Microscope, Scale
 from tkhtmlview import HTMLLabel
-from help import main_help
+from help import main_help,instrumentation_help
 
 
 class Main_window():
@@ -36,6 +36,7 @@ class Main_window():
         # flag if sub-windows are open
         self.setting_windows_open = False
         self.help_windows_open = False
+        self.instrumentation_help_window_open = False
         self.database_path = ''
         if os.name == 'nt':
             self.text_scaler_title = 0.8
@@ -135,6 +136,30 @@ class Main_window():
 
             # tells the class that the window is open
             self.help_windows_open = True
+
+    def instrumentation_help_window_close(self):
+        self.instrumentation_help_window_open = False
+        self.instrumentation_help_window.destroy()
+
+    def Instrumentation_help_window(self):
+        if not self.instrumentation_help_window_open:
+            self.instrumentation_help_window = tk.Toplevel(self.settingWindow)
+            self.instrumentation_help_window.protocol("WM_DELETE_WINDOW", self.instrumentation_help_window_close)
+            self.instrumentation_help_window.title("Help")
+            self.instrumentation_help_window.geometry(self.help_window_size)
+            self.instrumentation_help_window.resizable(False, False)
+
+            self.instrumentation_help_window.columnconfigure(0, weight=1)
+            self.instrumentation_help_window.rowconfigure(0, weight=1)
+
+            self.help_text_instrumentation = HTMLLabel(self.instrumentation_help_window , html=instrumentation_help)
+            self.help_text_instrumentation.grid(column=0, row=0,sticky="nsew",padx= 10, pady = 10)
+            # Create a vertical scrollbar linked to the canvas.
+            vsbar = tk.Scrollbar(self.instrumentation_help_window, orient=tk.VERTICAL, command=self.help_text_instrumentation.yview)
+            vsbar.grid(row=0, column=1, sticky=tk.NS)
+
+            # tells the class that the window is open
+            self.instrumentation_help_window_open = True
 
     # Setting window
 
@@ -410,7 +435,7 @@ class Main_window():
 
             current_row+=1
 
-            self.btn_instr_help = Button(self.settingWindow, text="Help", width = 5)
+            self.btn_instr_help = Button(self.settingWindow, text="Help", width = 5, command = self.Instrumentation_help_window)
             self.btn_instr_help.grid(column=2, row=current_row, sticky="w", padx = 0)
             current_row+=1
           # buttons in this section should scan for USB

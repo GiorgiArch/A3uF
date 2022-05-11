@@ -257,8 +257,8 @@ class Main_window():
         Confirm selection and change the behaviour of the setting window to show that a microscope has been selected.
         """
 
-        message = "Camera not ready"
-        if self.microscope_controller.initialized:
+        message = "Camera not ready or calibration not present"
+        if self.microscope_controller.initialized and (self.microscope_controller.calibration is not None):
             messagebox.showinfo("Camera", "Camera connected")
             self.camera_OK = True
             self.btn_microscope_finder.configure(bg = "green")

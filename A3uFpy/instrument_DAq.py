@@ -1,10 +1,11 @@
 from cv2 import VideoCapture
-from cv2 import namedWindow
+from cv2 import namedWindow, resizeWindow
 from cv2 import imshow
 from cv2 import waitKey
 from cv2 import destroyWindow
 from cv2 import imwrite
-from cv2 import CAP_MSMF
+from cv2 import CAP_MSMF, WINDOW_NORMAL
+import cv2
 import os, glob
 import numpy as np
 
@@ -21,6 +22,7 @@ class Microscope():
         self.version = "0.1.1"
         self.video_hardware = None
         self.initialized = False
+        self.calibration = None
         return
 
     def list_cams(self):
@@ -58,22 +60,63 @@ class Microscope():
         except Exception as e:
             return str(e)
 
+    def simple_video_stream(self):
+        """
+        Thread function for streaming unmodified frames
+        """
+
+    def start_simple(self):
+        '''
+        Start simple_video_stream
+        '''
+        return
+
+    def start_simple(self):
+        '''
+        Stop simple_video_stream
+        '''
+        return
+
     def test_cam(self):
+        """
+        Test and calibrate the camera.
+        """
         try:
             if self.video_hardware is not None:
                 for i in range(3):
                     cam_read = self.video_hardware.read()
             else:
                 return "No video hardware selected"
-
-            namedWindow("Microscope Test")
-            imshow("Microscope Test",cam_read[1])
-            waitKey(0)
-            destroyWindow("Microscope Test")
-            self.initialized = True
         except Exception as e:
             self.initialized = False
             return str(e)
+        # vid = cv2.VideoCapture(0) self.video_hardware
+        namedWindow("Microscope Calibration", WINDOW_NORMAL)
+        resizeWindow("Microscope Calibration", 1280*2, 720*2 )
+        def back(*args):
+            pass
+        cv2.createButton("Back",back,None,cv2.QT_PUSH_BUTTON,1)
+        while(True):
+
+            # Capture the video frame
+            # by frame
+            ret, frame = self.video_hardware.read()
+
+            # Display the resulting frame
+            imshow("Microscope Calibration", frame)
+
+            # the 'q' button is set as the
+            # quitting button you may use any
+            # desired button of your choice
+            if waitKey(1) & 0xFF == ord('q'):
+                break
+
+        # After the loop release the cap object
+        # self.video_hardware.release()
+        # Destroy all the windows
+        destroyWindow("Microscope Calibration")
+
+
 
     def get_frame(self):
         '''
